@@ -5,6 +5,8 @@ import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
 import { Camera, CameraOff, Mic, MicOff, RotateCw } from "lucide-react";
 import Room from "./Room";
+import Link from "next/link";
+import { Settings } from "lucide-react";
 
 export default function DeviceCheck() {
   const [name, setName] = useState("");
@@ -95,6 +97,15 @@ if (joined) {
   return (
     <section className="min-h-[calc(100vh-6rem)] bg-white text-black dark:bg-black dark:text-white">
       <div className="container mx-auto px-6 py-12">
+         <Link
+            href="/settings/profile"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-neutral-300 px-3 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+            title="Profile settings"
+            aria-label="Profile settings"
+          >
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Profile</span>
+          </Link>
         <div className="mx-auto w-full max-w-4xl rounded-2xl border border-neutral-200 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/70 md:p-8">
           <header className="mb-6">
             <h1 className="text-2xl font-semibold">Device Check</h1>
@@ -102,6 +113,7 @@ if (joined) {
               Preview your camera & mic before joining a match.
             </p>
           </header>
+
 
           <div className="grid gap-6 md:grid-cols-2">
             {/* Video preview */}
