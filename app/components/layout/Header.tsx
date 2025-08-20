@@ -1,8 +1,10 @@
+// app/components/layout/Header.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Menu, X, ChevronDown, ArrowRight, Sun, Moon, ShieldCheck, Filter, Video } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 interface NavItem {
   name: string;
@@ -53,27 +55,15 @@ const Header: React.FC = () => {
       animate="animate"
       style={{ backdropFilter: isScrolled ? "blur(12px)" : "none" }}
     >
-      <div
-        className={
-          "mx-auto max-w-7xl " +
-          (isScrolled ? "bg-white/85 dark:bg-black/70 border-b border-neutral-200 dark:border-neutral-800 shadow-sm" : "")
-        }
-      >
+      <div className={"mx-auto max-w-7xl " + (isScrolled ? "bg-white/85 dark:bg-black/70 border-b border-neutral-200 dark:border-neutral-800 shadow-sm" : "")}>
         <div className="flex h-16 items-center justify-between px-4 lg:h-20">
           {/* Brand */}
-          <motion.div
-            className="flex items-center space-x-2"
-            whileHover={{ scale: 1.03 }}
-            transition={{ type: "spring", stiffness: 400, damping: 22 }}
-          >
+          <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.03 }} transition={{ type: "spring", stiffness: 400, damping: 22 }}>
             <a href="#home" className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-300 bg-black text-white dark:bg-white dark:text-black">
-                {/* Minimal mark */}
                 <span className="text-xs font-bold">Ω</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-black dark:text-white">
-                Omegal for Professionals
-              </span>
+              <span className="text-xl font-bold tracking-tight text-black dark:text-white">Omegal for Professionals</span>
             </a>
           </motion.div>
 
@@ -114,9 +104,7 @@ const Header: React.FC = () => {
                             {d.icon && <div className="mt-0.5 text-neutral-600 dark:text-neutral-300">{d.icon}</div>}
                             <div>
                               <div className="font-medium text-neutral-900 dark:text-neutral-100">{d.name}</div>
-                              {d.description && (
-                                <div className="text-sm text-neutral-600 dark:text-neutral-400">{d.description}</div>
-                              )}
+                              {d.description && <div className="text-sm text-neutral-600 dark:text-neutral-400">{d.description}</div>}
                             </div>
                           </a>
                         ))}
@@ -138,13 +126,28 @@ const Header: React.FC = () => {
               {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
-            <a
-              href="/auth/linkedin"
-              className="text-sm font-medium text-neutral-900 transition hover:text-neutral-600 dark:text-neutral-100 dark:hover:text-neutral-300"
-              title="LinkedIn OAuth"
-            >
-              Sign in with LinkedIn
-            </a>
+            <SignedOut>
+              <SignInButton mode="modal" fallbackRedirectUrl="/post-auth">
+                <button
+                  className="text-sm font-medium text-neutral-900 transition hover:text-neutral-600 dark:text-neutral-100 dark:hover:text-neutral-300"
+                  title="LinkedIn OAuth"
+                >
+                  Sign in with LinkedIn
+                </button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "h-8 w-8",
+                    userButtonPopoverCard: "bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800",
+                  },
+                }}
+              />
+            </SignedIn>
 
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <a
@@ -198,7 +201,6 @@ const Header: React.FC = () => {
                     >
                       {item.name}
                     </a>
-                    {/* flatten dropdown for mobile */}
                     {item.hasDropdown &&
                       item.dropdownItems?.map((d) => (
                         <a
@@ -214,13 +216,24 @@ const Header: React.FC = () => {
                 ))}
 
                 <div className="space-y-2 px-4 pt-2">
-                  <a
-                    href="/auth/linkedin"
-                    className="block w-full rounded-md px-4 py-2.5 text-center text-sm font-medium text-neutral-900 transition hover:bg-neutral-100 dark:text-neutral-100 dark:hover:bg-neutral-900"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign in with LinkedIn
-                  </a>
+                  <SignedOut>
+                    <SignInButton mode="modal" fallbackRedirectUrl="/post-auth">
+                      <button
+                        className="block w-full rounded-md px-4 py-2.5 text-center text-sm font-medium text-neutral-900 transition hover:bg-neutral-100 dark:text-neutral-100 dark:hover:bg-neutral-900"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Sign in with LinkedIn
+                      </button>
+                    </SignInButton>
+                  </SignedOut>
+
+                  <SignedIn>
+                    <div className="flex items-center justify-between rounded-md border border-neutral-200 px-4 py-2.5 dark:border-neutral-800">
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">Account</span>
+                      <UserButton afterSignOutUrl="/" />
+                    </div>
+                  </SignedIn>
+
                   <a
                     href="/match"
                     className="block w-full rounded-md border border-neutral-900 bg-neutral-900 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-neutral-200"
