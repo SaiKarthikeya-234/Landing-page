@@ -154,9 +154,10 @@ const Index = () => {
                   </motion.div>
 
                   {/* Globe */}
-                  <div className="mt-10 flex justify-center">
-                    <div className="relative w-full max-w-[640px] aspect-[4/3] bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950">
-                      <div className="absolute inset-0">
+                  <div className="md-10 flex justify-center">
+                    <div className="relative w-full max-w-[640px] aspect-[5.5/3] bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950">
+                      {/* FIX: relative on mobile, absolute only on md+ */}
+                      <div className="relative md:absolute inset-0">
                         <Earth
                           baseColor={[1, 1, 1]}
                           markerColor={[0.2, 0.2, 0.2]}
@@ -167,7 +168,7 @@ const Index = () => {
                   </div>
 
                   {/* Trusted strip */}
-                  <div className="mx-auto max-w-4xl">
+                  <div className="mt-8 md:mt-10 mx-auto max-w-4xl">
                     <div className="text-center text-2xl text-black dark:text-white md:text-3xl">
                       <span>Trusted by verified professionals.</span>
                       <br />
@@ -176,7 +177,8 @@ const Index = () => {
                   </div>
                 </div>
               </section>
-               {/* ABOUT — integrated */}
+
+              {/* ABOUT — integrated */}
               <section id="about" className="scroll-mt-24 py-16">
                 <div className="container mx-auto px-6">
                   <AboutUs1 />
@@ -187,7 +189,9 @@ const Index = () => {
               <section id="features" className="scroll-mt-24 py-16">
                 <div className="container mx-auto px-6">
                   <div className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold md:text-4xl">Why Omegal for Professionals</h2>
+                    <h2 className="text-3xl font-semibold md:text-4xl">
+                      Why Omegal for Professionals
+                    </h2>
                     <p className="mt-3 text-neutral-600 dark:text-neutral-300">
                       Quality matches, high intent, minimal friction.
                     </p>
@@ -214,13 +218,13 @@ const Index = () => {
                 </div>
               </section>
 
-             
-
               {/* PRICING */}
               <section id="pricing" className="scroll-mt-24 py-20">
                 <div className="container mx-auto px-6">
                   <div className="mx-auto max-w-2xl text-center">
-                    <h2 className="text-3xl font-semibold md:text-4xl">Simple, transparent pricing</h2>
+                    <h2 className="text-3xl font-semibold md:text-4xl">
+                      Simple, transparent pricing
+                    </h2>
                     <p className="mt-3 text-neutral-600 dark:text-neutral-300">
                       Start free. Upgrade for advanced filters and priority routing.
                     </p>
@@ -245,7 +249,10 @@ const Index = () => {
                         </div>
                         <ul className="mt-4 space-y-2 text-sm">
                           {tier.features.map((f) => (
-                            <li key={f} className="flex items-start gap-2 text-neutral-800 dark:text-neutral-200">
+                            <li
+                              key={f}
+                              className="flex items-start gap-2 text-neutral-800 dark:text-neutral-200"
+                            >
                               <CheckCircle2 className="mt-0.5 h-4 w-4 text-black dark:text-white" />
                               <span>{f}</span>
                             </li>

@@ -177,26 +177,28 @@ export default function ContactUs1() {
               initial={{ opacity: 0, x: 20 }}
               animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="relative my-8 flex items-center justify-center overflow-hidden pr-8"
+              className="relative flex items-center justify-center overflow-hidden"
             >
               <div className="flex flex-col items-center justify-center overflow-hidden">
-                <article className="relative mx-auto h-[350px] min-h-60 max-w-[480px] overflow-hidden rounded-3xl border border-neutral-200 bg-white p-6 text-left text-black md:h-[450px] md:min-h-80 md:p-8 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white">
+                <article className="relative mx-auto h-[450px] min-h-60 max-w-[480px] overflow-hidden bg-white p-6 text-left text-black md:h-[450px] md:min-h-80 md:p-8 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white">
                   <h3 className="text-2xl font-bold leading-tight md:text-3xl">
                     Omegal for Professionals
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                    Real-time, LinkedIn-verified video matching for high-signal conversations.
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                    Real-time, LinkedIn-verified video matching for high-signal
+                    conversations.
                   </p>
 
-                  <ul className="mt-5 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
+                  <ul className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
                     <li>• Free filters: Skill, Role, Country/Timezone, Interest Tags</li>
                     <li>• Paid filters: Company, Experience, Seniority, Last Active</li>
                     <li>• Matching ladder: ROLE_CTRY → ROLE → TZ → CTRY → ANY</li>
                     <li>• Skill-overlap scoring & short bans after skip/leave</li>
                   </ul>
 
-                  <div className="mt-6 rounded-lg border border-dashed border-neutral-300 p-4 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
-                    Have partnership, press, or enterprise questions? Send a note—we typically reply within 24 hours.
+                  <div className="mt-4 rounded-lg border border-dashed border-neutral-300 p-4 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-300">
+                    Have partnership, press, or enterprise questions? Send a
+                    note—we typically reply within 24 hours.
                   </div>
                 </article>
               </div>
