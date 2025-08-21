@@ -186,9 +186,12 @@ const isEqualArray = (a?: string[], b?: string[]) =>
   JSON.stringify([...(a || [])].sort()) ===
   JSON.stringify([...(b || [])].sort());
 
-// Build a PATCH body with only changed keys (shallow + some nested)
+// Build a PATCH body with only changed keys (handles arrays + nested links safely)
 function diffProfile(next: Profile, prev: Profile): Partial<Profile> {
   const out: Partial<Profile> = {};
+  // precise index typing without `any`
+  const outMutable: Partial<Record<keyof Profile, Profile[keyof Profile]>> = out;
+
   const keys: (keyof Profile)[] = [
     "fullName",
     "username",
@@ -212,33 +215,55 @@ function diffProfile(next: Profile, prev: Profile): Partial<Profile> {
     "availability",
     "timeZone",
   ];
+
   for (const k of keys) {
     const nv = next[k];
     const pv = prev[k];
 
-    if (Array.isArray(nv) || Array.isArray(pv)) {
-      const out: Record<string, string[] | undefined> = {};
-
-      if (
-        !isEqualArray(nv as string[] | undefined, pv as string[] | undefined)
-      ) {
-        out[k] = nv as string[] | undefined;
+    // links: send full normalized object only if changed
+    if (k === "links") {
+      const nNorm = normalizeLinksForApi(nv as Links | undefined);
+      const pNorm = normalizeLinksForApi(pv as Links | undefined);
+      if (!linksEqual(nNorm, pNorm)) {
+        outMutable[k] = nNorm as Profile[keyof Profile];
       }
-    } else if (typeof nv === "object" && nv && k === "links") {
-      const nL = nv as Links,
-        pL = (pv || {}) as Links;
-      const changed: Links = {};
-      (["projects", "linkedin", "github", "website"] as const).forEach((lk) => {
-        if ((nL[lk] || "") !== (pL[lk] || "")) changed[lk] = nL[lk];
-      });
-      if (Object.keys(changed).length) out[k] = changed;
-    } else if ((nv ?? "") !== (pv ?? "")) {
-      const out: Record<string, unknown> = {};
-      out[k] = nv; // `nv` must be typed as unknown
+      continue;
+    }
+
+    // arrays: use your isEqualArray (order-insensitive)
+    if (Array.isArray(nv) || Array.isArray(pv)) {
+      const a = nv as string[] | undefined;
+      const b = pv as string[] | undefined;
+      if (!isEqualArray(a, b)) {
+        outMutable[k] = nv as Profile[keyof Profile];
+      }
+      continue;
+    }
+
+    // primitives/enums/strings
+    if ((nv ?? "") !== (pv ?? "")) {
+      outMutable[k] = nv as Profile[keyof Profile];
     }
   }
+
   return out;
 }
+
+
+
+// Keep only non-empty trimmed URLs; drop empty keys entirely
+const normalizeLinksForApi = (links?: Links): Links => {
+  const out: Links = {};
+  (["projects", "linkedin", "github", "website"] as const).forEach((k) => {
+    const v = links?.[k]?.trim();
+    if (v) out[k] = v;
+  });
+  return out;
+};
+
+const linksEqual = (a?: Links, b?: Links) =>
+  JSON.stringify(normalizeLinksForApi(a)) ===
+  JSON.stringify(normalizeLinksForApi(b));
 
 // ---------- MultiSelect (same UX as onboarding) ----------
 function MultiSelect({
@@ -539,12 +564,20 @@ export default function ProfileSettingsPage() {
     });
   };
 
-  const canSave = useMemo(() => {
-    if (!initial) return false;
-    if (usernameAvailable === "no") return false;
-    const changed = diffProfile(form, initial);
-    return Object.keys(changed).length > 0;
-  }, [form, initial, usernameAvailable]);
+ const canSave = useMemo(() => {
+  if (!initial) return false;
+  if (usernameAvailable === "no") return false;
+
+  const normalizedForDiff: Profile = {
+    ...form,
+    username: (form.username || "").toLowerCase(),
+    links: normalizeLinksForApi(form.links),
+  };
+
+  const changed = diffProfile(normalizedForDiff, initial);
+  return Object.keys(changed).length > 0;
+}, [form, initial, usernameAvailable]);
+
 
   const onSave = async () => {
     if (!initial) return;
@@ -558,24 +591,15 @@ export default function ProfileSettingsPage() {
       );
       if (!token) throw new Error("Not authenticated.");
 
-      // normalize fields similar to server-side normalization
-      const patch = diffProfile(
-        {
-          ...form,
-          username: (form.username || "").toLowerCase(),
-          profilePictureUrl: form.profilePictureUrl || undefined,
-          companyEmail: form.companyEmail || undefined,
-          bio: form.bio?.trim() ? form.bio.trim() : undefined,
-          links: {
-            projects: form.links?.projects || undefined,
-            linkedin: form.links?.linkedin || undefined,
-            github: form.links?.github || undefined,
-            website: form.links?.website || undefined,
-          },
-        },
-        initial
-      );
+      // Normalize current form for comparison & save
+      const normalizedForDiff: Profile = {
+        ...form,
+        username: (form.username || "").toLowerCase(),
+        bio: form.bio ?? "", // keep empty string if user cleared it
+        links: normalizeLinksForApi(form.links),
+      };
 
+      const patch = diffProfile(normalizedForDiff, initial);
       if (!Object.keys(patch).length) {
         setSaving(false);
         return;
