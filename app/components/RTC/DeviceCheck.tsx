@@ -106,6 +106,7 @@ if (joined) {
             <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">Profile</span>
           </Link>
+          
         <div className="mx-auto w-full max-w-4xl rounded-2xl border border-neutral-200 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/70 md:p-8">
           <header className="mb-6">
             <h1 className="text-2xl font-semibold">Device Check</h1>
@@ -131,7 +132,22 @@ if (joined) {
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
-                  onClick={() => setVideoOn((v) => !v)}
+                  onClick={() => {
+                    setVideoOn((v) => {
+                      const newVideoOn = !v;
+                      if (!newVideoOn) {
+                        setLocalVideoTrack(null);
+                        // Stop the video track if it exists
+                        if (currentStreamRef.current) {
+                          currentStreamRef.current.getVideoTracks().forEach((track) => track.stop());
+                        }
+                        if (videoRef.current) {
+                          videoRef.current.srcObject = null;
+                        }
+                      }
+                      return newVideoOn;
+                    });
+                  }}
                   className={cn(
                     "h-10 rounded-lg px-3 py-2",
                     videoOn
@@ -154,7 +170,17 @@ if (joined) {
 
                 <Button
                   type="button"
-                  onClick={() => setAudioOn((a) => !a)}
+                  onClick={() => setAudioOn((a) =>{
+                    const newAudioOn = !a;
+                    if (!newAudioOn) {
+                      setLocalAudioTrack(null);
+                      // Stop the audio track if it exists
+                      if (currentStreamRef.current) {
+                        currentStreamRef.current.getAudioTracks().forEach((track) => track.stop());
+                      }
+                    }
+                    return newAudioOn;
+                  })}
                   className={cn(
                     "h-10 rounded-lg px-3 py-2",
                     audioOn
@@ -175,17 +201,7 @@ if (joined) {
                   )}
                 </Button>
 
-                <Button
-                  type="button"
-                  onClick={getCam}
-                  variant="outline"
-                  className="h-10 rounded-lg px-3 py-2 border-neutral-300 dark:border-neutral-700"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <RotateCw className="h-4 w-4" />
-                    Re-check
-                  </span>
-                </Button>
+                
               </div>
 
               {error && (
